@@ -1,0 +1,9 @@
+---
+- name: PHP | Install Ondrej PHP PPA
+  apt_repository: repo="ppa:ondrej/php"
+
+- name: PHP | Install PHP Modules
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items: "{{ php_packages }}"
