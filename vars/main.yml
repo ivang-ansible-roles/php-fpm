@@ -1,0 +1,42 @@
+---
+
+php_ver: "{{ php_version | default('7.2') }}"
+fpm_service: "php{{ php_ver }}-fpm"
+
+php_packages:
+  - "php{{ php_ver }}-fpm"
+  - "php{{ php_ver }}-cli"
+  - "php{{ php_ver }}-common"
+  - "php{{ php_ver }}-soap"
+  - "php{{ php_ver }}-xml"
+  - "php{{ php_ver }}-zip"
+  - "php{{ php_ver }}-mbstring"
+  - "php{{ php_ver }}-bcmath"
+  - "php{{ php_ver }}-curl"
+  - "php{{ php_ver }}-gd"
+  - "php{{ php_ver }}-intl"
+  - "php{{ php_ver }}-json"
+  - "php{{ php_ver }}-mysql"
+  - "php{{ php_ver }}-readline"
+  - "php{{ php_ver }}-tidy"
+  - "php{{ php_ver }}-xmlrpc"
+  - "php{{ php_ver }}-xsl"
+  - "php{{ php_ver }}-yaml"
+  - "php{{ php_ver }}-xdebug"
+  - php-imagick
+
+fpm_pool: "/etc/php/{{ php_ver }}/fpm/pool.d/www.conf"
+
+fpm_pool_options:
+ - name: php_admin_value[memory_limit]
+   value: 192M
+ - name: php_admin_value[upload_max_filesize]
+   value: 100M
+ - name: php_admin_value[post_max_size]
+   value: 100M
+ - name: php_admin_value[max_input_vars]
+   value: 1500
+ - name: php_admin_value[max_execution_time]
+   value: 240
+ - name: php_admin_value[xdebug.max_nesting_level]
+   value: 500

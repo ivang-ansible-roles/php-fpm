@@ -1,14 +1,43 @@
 ---
-- include_vars: "{{ ansible_os_family }}.yml"
-- include: "setup-{{ ansible_os_family }}.yml"
 
-- include: "permissions.yml"
-- include: "composer.yml"
-- include: "configure.yml"
+- name: PHP | Install Ondrej PHP PPA
+  apt_repository: repo="ppa:ondrej/php"
+  when: php_ver != '7.2'
 
-- name: Ensure php-fpm is started and enabled at boot.
+- name: PHP | Install PHP and additional modules
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items: "{{ php_packages }}"
+
+- name: "Composer: check if installed"
+  stat: "path=/usr/bin/composer"
+  register: composer_bin
+
+- name: "Composer: download installer"
+  get_url:
+    url: https://getcomposer.org/installer
+    dest: /tmp/composer-installer.php
+  when: not composer_bin.stat.exists
+
+- name: "Composer: run installer"
+  command: "php /tmp/composer-installer.php --install-dir=/usr/bin --filename=composer"
+  when: not composer_bin.stat.exists
+
+- stat: "path={{ fpm_pool }}.bak"
+  register: fpm_pool_bak
+
+- name: Backup fpm_pool file
+  shell: >
+    cp {{ fpm_pool }} {{ fpm_pool }}.bak
+    creates={{ fpm_pool }}.bak
+  when: not fpm_pool_bak.stat.exists
+
+- name: Configure fpm_pool
+  ini_file: path={{ fpm_pool }} section=www option={{ item.name }} value={{ item.value }}
+  with_items: "{{ fpm_pool_options }}"
+
+- name: Restart php-fpm
   service:
     name: "{{ fpm_service }}"
-    state: started
-    enabled: yes
-    use: "{{ init_system | default(omit) }}"
+    state: restarted
