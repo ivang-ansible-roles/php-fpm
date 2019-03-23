@@ -6,9 +6,8 @@
 
 - name: PHP | Install PHP and additional modules
   apt:
-    name: "{{ item }}"
+    name: "{{ php_packages }}"
     state: latest
-  with_items: "{{ php_packages }}"
 
 - name: "Composer: check if installed"
   stat: "path=/usr/bin/composer"
